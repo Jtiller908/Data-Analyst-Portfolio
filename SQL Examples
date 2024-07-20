@@ -27,7 +27,7 @@ Where orders.status = "On Hold"
 Group by customerName
 
 
-#Market Basket Analysis: Fidn the products that are in the same order together more that ten times 
+#Market Basket Analysis: Find the products that are in the same order together more than ten times 
 
 Select A.productCode, B.productCode, C.productName as productName1, D.productName as productName2, count(*) as totalcount from classicmodels.`orderdetails` as A
 join classicmodels.`orderdetails` as B On A.orderNumber=B.orderNumber
