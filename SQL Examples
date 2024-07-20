@@ -1,0 +1,34 @@
+#Experience using SQL 
+#All queries are using the classicmodels schema from MySQL Workbench
+
+#Report those payments greater than $100,000
+Select * From classicmodels.`payments`
+Where amount > 100000
+order by amount desc
+
+#Find the names for the sales reps for each customer
+Select customerName, salesRepEmployeeNumber, employees.firstName, employees.lastName from classicmodels.`customers`
+join classicmodels.`employees` ON customers.salesRepEmployeeNumber=employees.employeeNumber
+
+
+#Which orders have a value greater than $5,000?
+Select * , (quantityOrdered*priceEach) as TotalOrderPrice From classicmodels.`orderdetails`
+Where (quantityOrdered*priceEach) > 5000
+
+
+#Report the number of orders 'On Hold' for each customer.
+Select customerName, Count(orders.status) From classicmodels.`customers`
+Join classicmodels.`orders` On orders.customerNumber=customers.customerNumber
+Where orders.status = "On Hold"
+Group by customerName
+
+
+#Market Basket Analysis: Fidn the products that are in the same order together more that ten times 
+Select A.productCode, B.productCode, C.productName as productName1, D.productName as productName2, count(*) as totalcount from classicmodels.`orderdetails` as A
+join classicmodels.`orderdetails` as B On A.orderNumber=B.orderNumber
+join classicmodels.`products` as C On A.productCode=C.productCode
+join classicmodels.`products` as D ON B.productCode=D.productCode
+and A.productCode<>B.productCode
+and B.productCode > A.productCode
+group by A.productCode, B.productCode
+order by totalcount desc
