@@ -1,0 +1,125 @@
+#My client is Cyclistic, a bike-sharing program based in Chicago. Bike-sharing programs such as Cyclistic help local residents travel within their communities. The program is used for work and school commutes, leisurely rides, and more. There are two types of users of Cyclistic bikes, casual riders and annual members. Members pay an annual fee to ride anytime, while casual riders pay for single-ride use or full-day use.
+The Director of Marketing, Lily Moreno believes that the success of Cyclistic relies on annual memberships. Lily Moreno and Cyclistinc marketing executives are looking for information that supports this theory and will help them develop marketing campaigns and strategies. As a jr. data analyst, I am tasked with finding trends and patterns to help the business increase, annual members, by converting casual riders. A major issue for Cyclistic is understanding when and where to put ads/marketing to attract casual riders to become members.
+I gathered the raw data from Amazon Web Services via Motivated International Inc. I cleaned the data using R programming.
+
+title: "Cyclistic Bike Ride Data Feb 2021-Jan 2022 Cleaned"
+author: "Joseph Tiller"
+date: "2022-08-10"
+output:
+pdf_document: default
+html_document:
+df_print: paged
+
+
+# Cleaning Raw Cyclistic Data
+The following code was used to clean and sort 12 months of data for Cyclistic ride share company. The objective of this analysis is to determined how the
+Cyclistic can influence casual riders to become annual members. The difference of bike usage between members and casual riders will help stakeholders and
+decision makers create marketing materials and ads. The following code was used to clean the raw data before exporting it to Tableau for further analysis
+and visualization.
+
+
+### Install & Load Packages 
+
+I Installed the following packages to cleann and organize data.
+```{r}
+install.packages("tidyverse")
+install.packages("lubridate")
+install.packages("magrittr")
+install.packages("plyr")
+library(tidyverse)
+library(lubridate)
+library(magrittr)
+library(dplyr)
+library(plyr)
+```
+
+### Import raw data covering 12 months of data from Feb 2021 to Jan 2022
+
+Data Source: Motivated International Inc. <https://divvy-tripdata.s3.amazonaws.com>
+```{r}
+Feb2021raw <- read_csv("202102-divvy-tripdata.csv")
+Mar2021raw <- read_csv("202103-divvy-tripdata.csv")
+Apr2021raw <- read_csv("202104-divvy-tripdata.csv")
+May2021raw <- read_csv("202105-divvy-tripdata.csv")
+Jun2021raw <- read_csv("202106-divvy-tripdata.csv")
+Jul2021raw <- read_csv("202107-divvy-tripdata.csv")
+Aug2021raw <- read_csv("202108-divvy-tripdata.csv")
+Sep2021raw <- read_csv("202109-divvy-tripdata.csv")
+Oct2021raw <- read_csv("202110-divvy-tripdata.csv")
+Nov2021raw <- read_csv("202111-divvy-tripdata.csv")
+Dec2021raw <- read_csv("202112-divvy-tripdata.csv")
+Jan2022raw <- read_csv("202201-divvy-tripdata.csv")
+
+### Combine individual data sets into one data set
+
+Using the rbind function I combined the 12 months of raw data into one data set and named it CyclisticDataRaw.
+```{r}
+CyclisticDataRaw <- rbind('Feb2021raw', 'Mar2021raw', 'Apr2021raw', 'May2021raw', 
+'Jun2021raw', 'Jul2021raw', 'Aug2021raw', 'Sep2021raw', 
+'Oct2021raw', 'Nov2021raw' , 'Dec2021raw', 'Jan2022raw')
+```
+
+### Select the columns needed for analysis.
+
+I used the combine function to choose the columns with data that will help determine the differences and similarities between casual and member riders.
+Specifically columns that showed where each type of rider started and ended their trip. How long the trip took and the type of bike that was used.
+```{r}
+CyclisticDataClean1 <- c('CyclisticDataRaw', 'ride_id', 'rideable_type', 
+'start_station_name', 'start_station_id', 'end_station_name', 'end_station_id',
+'started_at', 'ended_at', 'member_casual')
+```
+
+### Rename rideable_type and member_casual column names to "bike_type" and "rider_type"
+
+I renames these columns to make it easier to understand the data they contain.
+```{r}
+CyclisticDataClean2 <- rename ('CyclisticDataClean2', bike_type = rideable_type, 
+rider_type = member_casual)
+
+
+### Any rows with null or NA value was removed from the data set
+
+To make the dataset more complete and to prevent scewed data due to missing values. I removed all rows that had a null or NA as a value.
+```{r}
+CyclisticDataClean3 <- na.omit('CyclisticDataClean2')
+```
+
+### Create trip_duration column. The value if this column will be the difference of started_at column value and ended_at column value, in minutes.
+
+```{r}
+CyclisticDataClean4 <- CyclisticDataClean3 %>%
++mutate(started_at = ymd_hms(started_at), ended_at = ymd_hms (ended_at)) %>%
++mutate(trip_duration = interval(started_at, ended_at) / minutes(1))
+
+### Explore the data by finding correlations, averages, sums, etc.
+#I used the summerise function to find the average trip_duration in minutes and used the group by function to find specific averages for each rider type.
+
+```{r}
+CyclisticDataClean4 %>%
+group_by(rider_type) %>%
+summarise(mean_trip_duration = mean(trip_duration))
+
+#The following script calculated the total number of trips taken by rider_type. For this I used the as.interger and count functions to determine the
+individual ride_id. Total number of casual rider trips 2,529,408. Total number of Member rider trips 3,072,581.
+
+```{r}
+CyclisticDataClean4 %>%
+group_by(rider_type) %>%
+count(as.integer(ride_id))
+```
+
+#Finding this information allowed me to start answering question 1 of the case study; "How do annual members and casual riders use Cyclistic bikes
+differently?" We know that members take significantly more trips than casual riders, but members have a lower trip duration average in the 12 month period.
+That means members usually take shorter trips.
+### Finally we converted the CyclisticDataClean4 data set to a .csv file to upload it in Tableau for further analysis and visualization.
+
+```{r}
+write_csv(CyclisticDataClean4, 'CyclisticData12Months.csv')
+```
+
+Lily Moreno and Cyclistic execs specifically want to know: (Links under the graphics lead to the interactive dashboard)
+
+1.) How do annual members and casual riders use Cyclistic differently?
+
+
+
