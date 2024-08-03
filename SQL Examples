@@ -43,3 +43,7 @@ order by totalcount desc
 Select A.customerName, A.customerNumber, sum(B.amount), sum(B.amount/8853839.23)*100  AS PercentageofRevenue From classicmodels.`customers` as A
 Join classicmodels.`payments` as B ON A.customerNumber=B.customerNumber
 group by customerName
+
+#Tableau Dashboard
+
+
